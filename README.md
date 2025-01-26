@@ -1,2 +1,2 @@
-# 3354Project
-UTD CS3354.005 Group 4 Project
+# 3354 Project
+UTD CS 3354.005 Group 4 Project
