@@ -2,7 +2,7 @@ class User:
     def __init__(self, email, password):
         self.__email = email
         self.__password = password
-        self.__ingredients = []
+        self.__ingredients = {}
         self.__recipes = []
 
     def get_email(self):
@@ -14,26 +14,27 @@ class User:
     def verify_password(self, password):
         return self.__password == password
 
-    def add_ingredient(self, ingredient):
+    def add_ingredient(self, ingredient, quantity):
         self.__ingredients.append(ingredient)
 
     def get_ingredients(self):
         return self.__ingredients.copy()
 
-    def add_recipe(self, recipe):
+    def save_recipe(self, recipe):
         self.__recipes.append(recipe)
+
+    def upload_recipe(self, recipe):
+        # TODO: Upload Recipe
+        2
 
     def get_recipes(self):
         return self.__recipes.copy()
     
 class Ingredient:
-    def __init__(self, name, quantity, unit):
+    def __init__(self, name, unit, nutrition):
         self.__name = name
-        #self.__type = type  #maybe we need it? -> dairy/carb/protein??
-        #maybe also add in a list, that matches an ingredient to each recipe involved, but this would be difficult as we would need static types
-        #do we want an ingredient class?
-        self.__quantity = quantity #decided to just implement by adding quantity in each individual ingredient, so user can have a list of ingredients instead of map of ingredient:quantity
         self.__unit = unit #also units for  how we measure quantity(cup, lb, g, etc.)
+        self.__nutrition = nutrition
 
     def set_name(self, name):
         self.__name = name
@@ -41,27 +42,59 @@ class Ingredient:
     def get_name(self):
         return self.__name
     
-    def set_quantity(self, quantity):
-        self.__quantity = quantity
-
-    def get_type(self):
-        return self.__quantity
-    
     def set_unit(self, unit):
         self.__unit = unit
 
     def get_unit(self):
         return self.__unit
 
+class Nutrition:
+    def __init__(self, name, calories, sugars, carbs, protein):
+        self.__name = name
+        self.__calories = calories
+        self.__sugars = sugars
+        self.__carbs = carbs
+        self.__protein = protein
+
+    def set_name(self, name):
+        self.__name = name
+
+    def get_name(self):
+        return self.__name
+
+    def set_calories(self, calories):
+        self.__calories = calories
+
+    def get_calories(self):
+        return self.__calories
+
+    def set_sugars(self, sugars):
+        self.__sugars = sugars
+
+    def get_sugars(self):
+        return self.__sugars
+
+    def set_carbs(self, carbs):
+        self.__carbs = carbs
+
+    def get_carbs(self):
+        return self.__carbs
+
+    def set_protein(self, protein):
+        self.__protein = protein
+
+    def get_protein(self):
+        return self.__protein
+
 
 class Recipe:
     def __init__(self, title, instructions=""):
         self.__title = title
-        self.__ingredients = []  #what ingredients do we have
+        self.__ingredients = {}  #what ingredients do we have
         self.__instructions = instructions #instructions for user, default to empty
 
-    def add_ingredient(self, ingredient):
-        self.__ingredients.append(ingredient)
+    def add_ingredient(self, ingredient, quantity):
+        self.__ingredients[ingredient] = quantity
 
     def get_title(self):
         return self.__title
@@ -81,4 +114,13 @@ class Recipe:
     def set_instructions(self, instructions):
         self.__instructions = instructions
 
+    def get_nutrition(self):
+        nutrition = Nutrition("Total Nutrition", 0, 0, 0, 0)
+        for ingredient, quantity in self.__ingredients:
+            nutrition.set_calories(nutrition.get_calories() + (ingredient.get_calories() * quantity))
+            nutrition.set_sugars(nutrition.get_sugars() + (ingredient.get_sugars() * quantity))
+            nutrition.set_carbs(nutrition.get_carbs() + (ingredient.get_carbs() * quantity))
+            nutrition.set_protein(nutrition.get_protein() + (ingredient.get_protein() * quantity))
+
+        return nutrition
 
