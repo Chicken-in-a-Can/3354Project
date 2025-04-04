@@ -4,6 +4,7 @@ class User:
         self.__password = password
         self.__ingredients = {}
         self.__recipes = []
+        self.__current_user = False
 
     def get_email(self):
         return self.__email
@@ -13,6 +14,15 @@ class User:
 
     def verify_password(self, password):
         return self.__password == password
+
+    def log_in(self):
+        self.__current_user = True
+
+    def log_out(self):
+        self.__current_user = False
+
+    def get_logged_status(self):
+        return self.__current_user
 
     def add_ingredient(self, ingredient, quantity):
         self.__ingredients.append(ingredient)
