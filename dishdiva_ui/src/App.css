@@ -1,0 +1,89 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1f2937;
+  color: white;
+  padding: 1rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: white;
+  color: black;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.right-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.right-nav button {
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.search-bar {
+  margin: 1rem 0;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.home-page {
+  background-color: white;
+  min-height: 100vh;
+  padding: 1.5rem;
+  color: black;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.grid-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.recipe-card {
+  background-color: #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.img-placeholder {
+  height: 6rem;
+  background-color: #9ca3af;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+}
+
+.text-line {
+  height: 0.75rem;
+  background-color: #d1d5db;
+  margin-bottom: 0.25rem;
+  border-radius: 4px;
+}
