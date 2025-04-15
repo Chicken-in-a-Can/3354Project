@@ -1,0 +1,178 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+  }
+  
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #ccc;
+    padding: 10px;
+    color: black;
+  }
+  
+  .nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .nav-button {
+    background-color: #ccc;
+    padding: 10px;
+    cursor: pointer;
+    color: black;
+  }
+  
+  .profile-circle {
+    background-color: #ccc;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    cursor: pointer;
+  }
+  
+  /* Ingredients Page */
+  .main {
+    padding: 30px;
+  }
+  
+  .ingredients-title {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+  
+  .update-button {
+    background-color: #ccc;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    color: black;
+    margin-bottom: 20px;
+  }
+  
+  .ingredient-row {
+    display: flex;
+    align-items: center;
+    background-color: #ccc;
+    margin: 10px 0;
+    height: 30px;
+    width: 90%;
+    padding-left: 10px;
+  }
+  
+  /* Update Ingredients Page */
+  .main.update {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .left-section {
+    flex: 1;
+  }
+  
+  .section-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .input-group {
+    margin-bottom: 15px;
+  }
+  
+  .input-group label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .input-group input {
+    width: 300px;
+    padding: 10px;
+    background-color: #ccc;
+    border: none;
+    font-size: 14px;
+  }
+  
+  .edit-list {
+    margin-top: 20px;
+  }
+  
+  .action-buttons {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 10px;
+  }
+  
+  .delete-btn,
+  .edit-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .edit-btn {
+    font-weight: bold;
+  }
+  
+  .right-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .ingredients-btn {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 50px;
+  }
+  
+  .tools-box {
+    background-color: #ccc;
+    width: 80px;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  
+  .tool-icon {
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .add-btn {
+    background-color: #ccc;
+    color: black;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
