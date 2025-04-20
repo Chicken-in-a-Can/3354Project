@@ -12,7 +12,7 @@ class Ingredient(models.Model):
     nutrition = models.ForeignKey(Nutrition, on_delete=models.CASCADE)
 
 class Ingredients(models.Model):
-    ingredient = models.ForeignKey(Ingrdient)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     quantity = models.FloatField(default=0.0)
 
 class Recipe(models.Model):
