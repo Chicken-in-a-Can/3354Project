@@ -17,6 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from . import calls
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("", calls.index, name = "index"),
+    path("recipe/<str:recipe_name>/", calls.recipe, name = "recipe"),
 ]

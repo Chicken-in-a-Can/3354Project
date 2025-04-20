@@ -1,19 +1,20 @@
 from __future__ import annotations
+from django.apps import AppConfig
 from typing import List
 import re
+from . import models
 
-
-class User:
+class User(AppConfig):
     def __init__(self, username: str, email: str, password: str):
         self._validate_username(username)
         self._validate_email(email)
         self._validate_password(password)
-        
+
         self.username = username
         self.email = email
         self.password = password
         self.__ingredients = []  # Private list for ingredients
-        self.__recipes = []      # Private list for recipes
+    self.__recipes = []      # Private list for recipes
 
     # Original ingredient/recipe methods
     def add_ingredient(self, ingredient, quantity):
@@ -21,6 +22,12 @@ class User:
 
     def get_ingredients(self):
         return self.__ingredients.copy()
+
+    def set_ingredients(self, ingredients):
+        self.__ingredients = ingredients
+
+    def set_recipes(self, recipes):
+        self.__recipes = recipes
 
     def save_recipe(self, recipe):
         self.__recipes.append(recipe)
@@ -51,7 +58,24 @@ class User:
         if not any(c.isalpha() for c in password):
             raise ValueError("Password must contain at least one letter")
 
-class AuthSystem: 
+    def store_user(self):
+        usr = models.User(name=self.name, email=self.email, password=self.password, ingredients=self.__ingredients, recipes=self.__recipes)
+
+    def store_recipes(self):
+
+    def fetch_recipes(self):
+
+    def store_ingredients(self):
+        for ingredient, quantity in self.__ingredients:
+            ing = models.Ingredient(name=ing.get_name(), quantity=ing.get_unit(), )
+
+    def fetch_ingredients(self):
+
+    def fetch_user(db_id):
+        usr = User(db_id.name, db_id.email, db_id.password)
+        usr.set_ingredients()
+
+class AuthSystem(AppConfig): 
     predefined_users = [
         User("meowmeow", "meow@realwebsites.com", "m30wm30w$"),
         User("chipchip", "chip@realwebsites.com", "ch1pch1p$")
@@ -76,7 +100,7 @@ class AuthSystem:
     def logout(self):
         self.current_user = None
 
-class Ingredient:
+class Ingredient(AppConfig):
     def __init__(self, name, unit, nutrition):
         if not re.match(r'^[a-zA-Z0-9 \-]+$', name):
             raise ValueError("Invalid ingredient name - only letters, numbers, and hyphens allowed")
@@ -96,19 +120,25 @@ class Ingredient:
     def get_unit(self):
         return self.__unit
 
-class Nutrition:
-    def __init__(self, name, calories, sugars, carbs, protein):
-        self.__name = name
+    def set_unit(self, unit):
+        self.__unit = unit
+
+    def store_ingredient(self):
+        nutr = store_nutrition(self.__nutrition)
+        ingr = models.Ingredient(name=self.__name, quantity=self.__unit, nutrition=nutr)
+        ingr.save()
+        return ing
+
+    def fetch_ingredients(ingr_id):
+        return Ingredient(ingr.name, ingr.quantity, Nutrition.fetch_nutrition(ingr.nutrition))
+
+
+class Nutrition(AppConfig):
+    def __init__(self, calories, sugars, carbs, protein):
         self.__calories = calories
         self.__sugars = sugars
         self.__carbs = carbs
         self.__protein = protein
-
-    def set_name(self, name):
-        self.__name = name
-
-    def get_name(self):
-        return self.__name
 
     def set_calories(self, calories):
         self.__calories = calories
@@ -134,8 +164,16 @@ class Nutrition:
     def get_protein(self):
         return self.__protein
 
+    def store_nutrition(self):
+        nutrition = models.Nutrition(calories=self.__calories, carbs=self.__carbs, sugars=self.__sugars, protein=self.__protein)
+        nutrition.save()
+        return nutrition
 
-class Recipe:
+    def fetch_nutrition(nutr_id):
+        return Nutrition(nutr_id.calories, nutr_id.sugars, nutr_id.carbs, nutr_id.protein)
+
+
+class Recipe(AppConfig):
     VALID_CATEGORIES = {"Healthy", "Vegetarian", "Vegan", "GlutenFree"}  # Customize as needed
     
     def __init__(self, title: str, category: str, instructions: str = ""):
@@ -219,4 +257,10 @@ class Recipe:
 
     def __str__(self):
         return f"{self.__title} ({self.__category}) - {len(self.__ingredients)} ingredients"
+
+
+    def store_recipe(self):
+        recipe = models.Recipe(name=self.__title, category=self.__category, instructions=self.__instructions, ingredients=)
+        nutrition.save()
+        return nutrition
 
