@@ -14,7 +14,7 @@ class User(AppConfig):
         self.email = email
         self.password = password
         self.__ingredients = []  # Private list for ingredients
-    self.__recipes = []      # Private list for recipes
+        self.__recipes = []      # Private list for recipes
 
     # Original ingredient/recipe methods
     def add_ingredient(self, ingredient, quantity):
@@ -58,22 +58,61 @@ class User(AppConfig):
         if not any(c.isalpha() for c in password):
             raise ValueError("Password must contain at least one letter")
 
+    # Storage methods
     def store_user(self):
-        usr = models.User(name=self.name, email=self.email, password=self.password, ingredients=self.__ingredients, recipes=self.__recipes)
+    usr = models.User(name=self.username, email=self.email, password=self.password)
+    usr.save()
+
+    for ingredient, quantity in self.__ingredients:
+        ing = ingredient.store_ingredient()
+        ingr = models.Ingredients(ingredient=ing, quantity=quantity)
+        ingr.save()
+        usr.ingredients.add(ingr)
+
+    for recipe in self.__recipes:
+        rec = recipe.store_recipe()
+        usr.recipes.add(rec)
+
+    return usr
 
     def store_recipes(self):
-
+        stored = []
+        for recipe in self.__recipes:
+            rec = recipe.store_recipe()
+            rec.save()
+            stored.append(rec)
+        return stored
+    
     def fetch_recipes(self):
-
+        usr = models.User.objects.get(email=self.email)
+        recipes = usr.recipes.all()
+        self.__recipes = [Recipe.fetch_recipe(r) for r in recipes]  # Assumes this method exists
+    
     def store_ingredients(self):
+        stored = []
         for ingredient, quantity in self.__ingredients:
-            ing = models.Ingredient(name=ing.get_name(), quantity=ing.get_unit(), )
-
+            ing = ingredient.store_ingredient()
+            ingr = models.Ingredients(ingredient=ing, quantity=quantity)
+            ingr.save()
+            stored.append(ingr)
+        return stored
+    
     def fetch_ingredients(self):
-
+        usr = models.User.objects.get(email=self.email)
+        ingr_links = usr.ingredients.all()
+        fetched = []
+        for ing_link in ingr_links:
+            ingredient_model = ing_link.ingredient
+            logic_obj = Ingredient.fetch_ingredients(ingredient_model.id)
+            fetched.append((logic_obj, ing_link.quantity))
+        self.__ingredients = fetched
+    
     def fetch_user(db_id):
         usr = User(db_id.name, db_id.email, db_id.password)
-        usr.set_ingredients()
+        usr.fetch_ingredients()
+        usr.fetch_recipes()
+        return usr
+
 
 class AuthSystem(AppConfig): 
     predefined_users = [
