@@ -60,8 +60,8 @@ class User(AppConfig):
 
     # Storage methods
     def store_user(self):
-    usr = models.User(name=self.username, email=self.email, password=self.password)
-    usr.save()
+        usr = models.User(name=self.username, email=self.email, password=self.password)
+        usr.save()
 
     for ingredient, quantity in self.__ingredients:
         ing = ingredient.store_ingredient()
@@ -299,7 +299,10 @@ class Recipe(AppConfig):
 
 
     def store_recipe(self):
-        recipe = models.Recipe(name=self.__title, category=self.__category, instructions=self.__instructions, ingredients=)
-        nutrition.save()
-        return nutrition
+        recipe = models.Recipe(name=self.__title, category=self.__category, instructions=self.__instructions, ingredients=self.ingredients)
+        recipe.save()
+        return recipe
+
+    def fetch_recipe(recp):
+        return recipe(recp.name, recp.category, recp.instructions)
 
