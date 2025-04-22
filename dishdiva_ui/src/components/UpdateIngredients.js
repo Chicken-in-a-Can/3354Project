@@ -1,11 +1,9 @@
 import React from "react";
-import Header from "./Header";
-import "./styles.css";
+//import "./styles.css";
 
 const UpdateIngredients = () => {
   return (
     <div>
-      <Header />
       <div className="main update">
         <div className="left-section">
           <div className="section-title">Insert Ingredients</div>

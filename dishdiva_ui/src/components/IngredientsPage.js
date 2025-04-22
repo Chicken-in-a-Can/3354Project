@@ -1,16 +1,17 @@
 import React from "react";
-import Header from "./Header";
-import "./styles.css";
+import "../App.css";
 
-const Ingredients = () => {
+const Ingredients = ({ onNavigate }) => {
   return (
     <div>
-      <Header />
       <div className="main">
         <div className="ingredients-title">Ingredients</div>
-        <a href="/updateIngredients">
-          <button className="update-button">Update Ingredients</button>
-        </a>
+        <button
+          className="update-button"
+          onClick={() => onNavigate("update-ingredients")}
+        >
+          Update Ingredients
+        </button>
         <div className="ingredient-row">Chicken - 1 lb</div>
         <div className="ingredient-row">Flour - 2 cups</div>
         <div className="ingredient-row">Salt - 1 tsp</div>
