@@ -21,6 +21,8 @@ from . import calls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", calls.index, name = "index"),
-    path("recipe/<str:recipe_name>/", calls.recipe, name = "recipe"),
+    path("recipe/<str:recipe_id>/", calls.recipe, name = "recipe"),
+    path("user/<str:user_id>/", calls.user, name = "user"),
+    path("ingredient/<str:ingredient_id>/", calls.ingredient, name = "ingredient"),
+    path("search/<str:search_request>/", calls.search, name = "search"),
 ]
