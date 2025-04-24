@@ -29,6 +29,13 @@ def ingredient(request, ingredient_id):
     return JsonResponse(response)
 
 
-def search(request, search_request):
+def searchRecipe(request, search_request):
     response = "results: %s"
     return HttpResponse(response % search_request)
+
+def getUserFromDb(request, search_request):
+    response = "results: %s"
+    return HttpResponse(response % search_request)
+
+def login(login, pass):
+    pass
