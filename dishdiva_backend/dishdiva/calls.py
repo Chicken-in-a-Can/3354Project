@@ -1,7 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 
 from . import classes
-
+from . import models
 
 def recipe(request, recipe_id):
     recipe = classes.Recipe.fetch_recipe(recipe_id)
@@ -30,12 +30,35 @@ def ingredient(request, ingredient_id):
 
 
 def searchRecipe(request, search_request):
-    response = "results: %s"
-    return HttpResponse(response % search_request)
+    recipes = models.Recipe.objects.filter(name__icontains=search_request)
+    results = []
+    for recipe in recipes:
+        results.append({
+            "name": recipe.name,
+            "category": recipe.category,
+            "instructions": recipe.instructions,
+        })
+    return JsonResponse({"results": results})
 
 def getUserFromDb(request, search_request):
-    response = "results: %s"
-    return HttpResponse(response % search_request)
+    users = models.User.objects.filter(name__icontains=search_request)
+    results = []
+    for user in users:
+        results.append({
+            "name": user.name,
+            "email": user.email,
+        })
+    return JsonResponse({"results": results})
 
-def login(login, pass):
-    pass
+def login(request):
+    identifier = request.GET.get('email')
+    password = request.GET.get('password')
+
+    if not identifier or not password:
+        return JsonResponse({"error": "Missing email or password"}, status=400)
+
+    auth_system = classes.AuthSystem()
+    if auth_system.login(identifier, password):
+        return JsonResponse({"message": "Login successful"})
+    else:
+        return JsonResponse({"message": "Invalid credentials"}, status=401)
