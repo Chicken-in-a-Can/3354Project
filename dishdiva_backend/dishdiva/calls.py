@@ -62,3 +62,39 @@ def login(request):
         return JsonResponse({"message": "Login successful"})
     else:
         return JsonResponse({"message": "Invalid credentials"}, status=401)
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
+def ingredients_list(request):
+    if request.method == "GET":
+        ingredients = models.Ingredient.objects.all()
+        results = [
+            {
+                "id": ing.id,
+                "name": ing.name,
+                "quantity": ing.quantity,
+                "nutrition": {
+                    "calories": ing.nutrition.calories,
+                    "sugars": ing.nutrition.sugars,
+                    "carbs": ing.nutrition.carbs,
+                    "protein": ing.nutrition.protein,
+                }
+            } for ing in ingredients
+        ]
+        return JsonResponse(results, safe=False)
+
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        nutrition = models.Nutrition.objects.create(
+            calories=data["nutrition"]["calories"],
+            sugars=data["nutrition"]["sugars"],
+            carbs=data["nutrition"]["carbs"],
+            protein=data["nutrition"]["protein"]
+        )
+        ingredient = models.Ingredient.objects.create(
+            name=data["name"],
+            quantity=data["quantity"],
+            nutrition=nutrition
+        )
+        return JsonResponse({"id": ingredient.id, "message": "Ingredient created"})
