@@ -1,17 +1,19 @@
 import React from "react";
 
 const RecipeDetail = ({ onBack }) => (
-  <div className="recipe-detail">
-    <button onClick={onBack} style={{ marginBottom: "1rem" }}>← Back to Recipes</button>
-    <div className="recipe-info">
-      <div className="text-line wide"></div>
-      <div className="text-line narrow"></div>
-      <div className="text-line full"></div>
-      <div className="text-line wide"></div>
-      <div className="text-line full"></div>
-    </div>
-    <div className="recipe-image-large">
-      <div className="img-placeholder"></div>
+  <div className="page-container">
+    <button onClick={onBack} className="back-button">← Back to Recipes</button>
+
+    <div className="recipe-detail-layout">
+      <div className="recipe-info">
+        <h2>Recipe Name Placeholder</h2>
+        <p>Category: Healthy</p>
+        <p>Instructions: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sit amet ligula eget sapien laoreet pulvinar.</p>
+      </div>
+
+      <div className="recipe-image">
+        <div className="img-placeholder-large"></div>
+      </div>
     </div>
   </div>
 );

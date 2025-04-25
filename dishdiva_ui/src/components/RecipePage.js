@@ -3,8 +3,13 @@ import RecipeCard from "./RecipeCard";
 
 const RecipesPage = ({ onRecipeSelect }) => (
   <div className="home-page">
-    <div className="search-bar">
-      <input className="search-input" placeholder="Search..." />
+    <div className="search-container">
+      <input
+        className="search-input"
+        type="text"
+        placeholder="Search recipes..."
+      />
+      <button className="search-button">Search</button>
     </div>
 
     <div className="section">

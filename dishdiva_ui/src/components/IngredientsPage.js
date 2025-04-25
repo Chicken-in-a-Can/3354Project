@@ -12,21 +12,31 @@ const Ingredients = ({ onNavigate }) => {
   }, []);
 
   return (
-    <div>
-      <div className="main">
-        <div className="ingredients-title">Ingredients</div>
-        <button
-          className="update-button"
-          onClick={() => onNavigate("update-ingredients")}
-        >
-          Update Ingredients
-        </button>
-        {ingredients.map((ingredient, index) => (
-          <div className="ingredient-row" key={index}>
-            {ingredient.name} - {ingredient.quantity}
-          </div>
-        ))}
-      </div>
+    <div className="page-container">
+      <div className="ingredients-title">Ingredients</div>
+      <button
+        className="update-button"
+        onClick={() => onNavigate("update-ingredients")}
+      >
+        Update Ingredients
+      </button>
+
+      <table className="ingredients-table">
+        <thead>
+          <tr>
+            <th>Ingredient</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ingredients.map((ingredient, index) => (
+            <tr key={index}>
+              <td>{ingredient.name}</td>
+              <td>{ingredient.quantity}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
