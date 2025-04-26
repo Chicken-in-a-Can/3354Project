@@ -4,12 +4,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
 import json
 import base64
-
 from . import classes
 from . import models
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from .models import User
+from .models import Recipe
+
 
 def user(request, user_id):
     response = "You're user %s"
@@ -234,6 +235,7 @@ def login(request):
     
 
 
+
 def get_user(request, user_id):
     """
     Fetch user data by ID.
@@ -279,6 +281,38 @@ def update_profile(request):
 
             user.save()
             return JsonResponse({"message": "Profile updated successfully."}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)
+
+@csrf_exempt
+def add_recipe(request):
+    """
+    Handle adding a new recipe.
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            name = data.get("name")
+            category = data.get("category")
+            ingredients = data.get("ingredients", [])
+
+            if not name or not category or not ingredients:
+                return JsonResponse({"error": "Name, category, and ingredients are required."}, status=400)
+
+            # Create and save the new recipe
+            recipe = Recipe.objects.create(name=name, category=category)
+            # Assuming ingredients are stored as a ManyToManyField or JSONField
+            recipe.ingredients = ingredients
+            recipe.save()
+
+            return JsonResponse({
+                "id": recipe.id,
+                "name": recipe.name,
+                "category": recipe.category,
+                "ingredients": recipe.ingredients,
+            }, status=201)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 

@@ -5,7 +5,11 @@ import "../App.css";
 const RecipePage = ({ onNavigateToDetail }) => {
   const [recipes, setRecipes] = useState([]);
   const [error, setError] = useState(null);
+  const [newRecipe, setNewRecipe] = useState({ name: "", category: "", ingredients: [] }); // State for the new recipe
+  const [ingredientInput, setIngredientInput] = useState(""); // State for the current ingredient input
+  const [addError, setAddError] = useState(null); // Error for adding a recipe
 
+  // Fetch recipes from the backend
   useEffect(() => {
     fetch("http://localhost:8000/calls/recipes/") // Ensure this matches your backend endpoint
       .then((response) => {
@@ -21,9 +25,128 @@ const RecipePage = ({ onNavigateToDetail }) => {
       });
   }, []);
 
+  // Handle form submission to add a new recipe
+  const handleAddRecipe = (e) => {
+    e.preventDefault();
+  
+    if (!newRecipe.name || !newRecipe.category || newRecipe.ingredients.length === 0) {
+      setAddError("Name, category, and at least one ingredient are required.");
+      return;
+    }
+  
+    fetch("http://localhost:8000/calls/add_recipe/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newRecipe),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to add recipe.");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setRecipes((prevRecipes) => [...prevRecipes, data]); // Add the new recipe to the list
+        setNewRecipe({ name: "", category: "", ingredients: [] }); // Reset the form
+        setIngredientInput(""); // Reset the ingredient input
+        setAddError(null); // Clear any previous errors
+      })
+      .catch((error) => {
+        console.error("Error adding recipe:", error);
+        setAddError("Failed to add recipe. Please try again later.");
+      });
+  };
+
+  // Handle adding an ingredient to the recipe
+  const handleAddIngredient = () => {
+    if (ingredientInput.trim() === "") {
+      return;
+    }
+    setNewRecipe((prevRecipe) => ({
+      ...prevRecipe,
+      ingredients: [...prevRecipe.ingredients, ingredientInput.trim()],
+    }));
+    setIngredientInput(""); // Clear the input field
+  };
+
+  // Handle removing an ingredient from the recipe
+  const handleRemoveIngredient = (index) => {
+    setNewRecipe((prevRecipe) => ({
+      ...prevRecipe,
+      ingredients: prevRecipe.ingredients.filter((_, i) => i !== index),
+    }));
+  };
+
   return (
     <div className="page-container">
       <h1>Recipes</h1>
+
+      {/* Add Recipe Form */}
+      <div className="add-recipe-form" style={{ marginBottom: "2rem" }}>
+        <h2>Add a New Recipe</h2>
+        <form onSubmit={handleAddRecipe}>
+          <input
+            type="text"
+            placeholder="Recipe Name"
+            value={newRecipe.name}
+            onChange={(e) => setNewRecipe({ ...newRecipe, name: e.target.value })}
+            style={{ marginRight: "1rem", padding: "0.5rem" }}
+          />
+          <input
+            type="text"
+            placeholder="Category"
+            value={newRecipe.category}
+            onChange={(e) => setNewRecipe({ ...newRecipe, category: e.target.value })}
+            style={{ marginRight: "1rem", padding: "0.5rem" }}
+          />
+          <div style={{ marginTop: "1rem" }}>
+            <input
+              type="text"
+              placeholder="Add Ingredient"
+              value={ingredientInput}
+              onChange={(e) => setIngredientInput(e.target.value)}
+              style={{ marginRight: "1rem", padding: "0.5rem" }}
+            />
+            <button
+              type="button"
+              onClick={handleAddIngredient}
+              style={{ padding: "0.5rem 1rem" }}
+            >
+              Add Ingredient
+            </button>
+          </div>
+          <ul style={{ marginTop: "1rem" }}>
+            {newRecipe.ingredients.map((ingredient, index) => (
+              <li key={index} style={{ marginBottom: "0.5rem" }}>
+                {ingredient}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveIngredient(index)}
+                  style={{
+                    marginLeft: "1rem",
+                    padding: "0.2rem 0.5rem",
+                    backgroundColor: "red",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button type="submit" style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
+            Add Recipe
+          </button>
+        </form>
+        {addError && <p style={{ color: "red" }}>{addError}</p>}
+      </div>
+
+      {/* Recipe List */}
       {error ? (
         <p>{error}</p>
       ) : recipes.length > 0 ? (
@@ -33,6 +156,7 @@ const RecipePage = ({ onNavigateToDetail }) => {
               key={recipe.id}
               name={recipe.name}
               category={recipe.category}
+              ingredients={recipe.ingredients}
               onClick={() => onNavigateToDetail(recipe.id)}
             />
           ))}
