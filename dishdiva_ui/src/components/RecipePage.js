@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import RecipeCard from "./RecipeCard";
 import "../App.css";
 
-const RecipePage = ({ onNavigateToDetail }) => {
+const RecipePage = () => {
   const [recipes, setRecipes] = useState([]);
   const [error, setError] = useState(null);
   const [newRecipe, setNewRecipe] = useState({ name: "", category: "", ingredients: [] }); // State for the new recipe
@@ -28,12 +27,12 @@ const RecipePage = ({ onNavigateToDetail }) => {
   // Handle form submission to add a new recipe
   const handleAddRecipe = (e) => {
     e.preventDefault();
-  
+
     if (!newRecipe.name || !newRecipe.category || newRecipe.ingredients.length === 0) {
       setAddError("Name, category, and at least one ingredient are required.");
       return;
     }
-  
+
     fetch("http://localhost:8000/calls/add_recipe/", {
       method: "POST",
       headers: {
@@ -152,13 +151,11 @@ const RecipePage = ({ onNavigateToDetail }) => {
       ) : recipes.length > 0 ? (
         <div className="recipe-list">
           {recipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              name={recipe.name}
-              category={recipe.category}
-              ingredients={recipe.ingredients}
-              onClick={() => onNavigateToDetail(recipe.id)}
-            />
+            <div key={recipe.id} className="recipe-item" style={{ marginBottom: "1rem" }}>
+              <h2>{recipe.name}</h2>
+              <p><strong>Category:</strong> {recipe.category}</p>
+              <p><strong>Ingredients:</strong> {recipe.ingredients.join(", ")}</p>
+            </div>
           ))}
         </div>
       ) : (

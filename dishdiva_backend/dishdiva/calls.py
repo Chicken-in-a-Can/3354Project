@@ -136,21 +136,20 @@ def ingredients_list(request):
         )
         return JsonResponse({"id": ingredient.id, "message": "Ingredient created"})
 
+
+
 def all_recipes(request):
-    """
-    Fetch all recipes from the database and return them as a JSON response.
-    """
-    recipes = models.Recipe.objects.all()
-    results = []
-    for r in recipes:
-        results.append({
-            "id": r.id,
-            "name": r.name,
-            "category": r.category,
-            "instructions": r.instructions,  # Include instructions if needed
-            "ingredients": [ingredient.name for ingredient in r.ingredients.all()],  # Include related ingredients
-        })
-    return JsonResponse({"results": results})
+    recipes = Recipe.objects.all()
+    recipe_list = [
+        {
+            "id": recipe.id,
+            "name": recipe.name,
+            "category": recipe.category,
+            "ingredients": recipe.ingredients,  # Ensure this is returned correctly
+        }
+        for recipe in recipes
+    ]
+    return JsonResponse({"results": recipe_list}, status=200)
 
 def recipe(request, recipe_id):
     """
@@ -302,11 +301,7 @@ def add_recipe(request):
                 return JsonResponse({"error": "Name, category, and ingredients are required."}, status=400)
 
             # Create and save the new recipe
-            recipe = Recipe.objects.create(name=name, category=category)
-            # Assuming ingredients are stored as a ManyToManyField or JSONField
-            recipe.ingredients = ingredients
-            recipe.save()
-
+            recipe = Recipe.objects.create(name=name, category=category, ingredients=ingredients)
             return JsonResponse({
                 "id": recipe.id,
                 "name": recipe.name,
