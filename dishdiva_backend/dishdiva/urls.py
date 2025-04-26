@@ -31,4 +31,6 @@ urlpatterns = [
     path("searchUser/<str:search_request>/", calls.getUserFromDb, name="getUserFromDb"),
     path("login/", calls.login, name="login"),
     path('signup/', calls.signup, name='signup'),
+    path("update_profile/", calls.update_profile, name="update_profile"),
+    path("get_user/<int:user_id>/", calls.get_user, name="get_user"),
 ]

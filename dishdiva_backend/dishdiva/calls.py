@@ -1,11 +1,15 @@
 
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.files.base import ContentFile
 import json
+import base64
+
 from . import classes
 from . import models
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from .models import User
 
 def user(request, user_id):
     response = "You're user %s"
@@ -227,3 +231,55 @@ def login(request):
             return JsonResponse({"message": str(e)}, status=500)
 
     return JsonResponse({"message": "Invalid request method."}, status=405)
+    
+
+
+def get_user(request, user_id):
+    """
+    Fetch user data by ID.
+    """
+    try:
+        user = User.objects.get(id=user_id)
+        return JsonResponse({
+            "username": user.username,
+        }, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found."}, status=404)
+
+
+@csrf_exempt
+def update_profile(request):
+    """
+    Handle profile updates (name and profile picture).
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_id = data.get("user_id")  # Pass the logged-in user's ID
+            new_name = data.get("name")
+            profile_picture = data.get("profile_picture")  # Base64 encoded image
+
+            # Validate input
+            if not user_id or not new_name:
+                return JsonResponse({"error": "User ID and name are required."}, status=400)
+
+            # Get the user
+            user = User.objects.get(id=user_id)
+
+            # Update the user's name
+            user.username = new_name
+
+            # Update the profile picture if provided
+            if profile_picture:
+                format, imgstr = profile_picture.split(";base64,")
+                ext = format.split("/")[-1]  # Get the file extension
+                if ext not in ["png", "jpg", "jpeg"]:  # Validate file type
+                    return JsonResponse({"error": "Invalid file type."}, status=400)
+                user.profile_picture.save(f"profile_{user.id}.{ext}", ContentFile(base64.b64decode(imgstr)))
+
+            user.save()
+            return JsonResponse({"message": "Profile updated successfully."}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)
