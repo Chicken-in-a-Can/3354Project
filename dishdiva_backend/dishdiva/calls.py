@@ -141,3 +141,14 @@ def ingredients_list(request):
             nutrition=nutrition
         )
         return JsonResponse({"id": ingredient.id, "message": "Ingredient created"})
+
+def all_recipes(request):
+    recipes = request.Recipe.objects.all()
+    results = []
+    for r in recipes:
+        results.append({
+            "id": r.id,
+            "name": r.name,
+            "category": r.category,
+        })
+    return JsonResponse({"results": results})

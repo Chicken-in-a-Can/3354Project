@@ -1,43 +1,31 @@
-import React from "react";
-import RecipeCard from "./RecipeCard";
+import React, { useEffect, useState } from "react";
 
-const RecipesPage = ({ onRecipeSelect }) => (
-  <div className="home-page">
-    <div className="search-container">
-      <input
-        className="search-input"
-        type="text"
-        placeholder="Search recipes..."
-      />
-      <button className="search-button">Search</button>
+const RecipeDetail = ({ recipeId }) => {
+  const [recipe, setRecipe] = useState(null);
+
+  useEffect(() => {
+    fetch(`/calls/recipe/${recipeId}`)
+      .then((res) => res.json())
+      .then((data) => setRecipe(data))
+      .catch((err) => console.error("Failed to fetch recipe", err));
+  }, [recipeId]);
+
+  if (!recipe) return <div>Loading...</div>;
+
+  return (
+    <div className="recipe-detail">
+      <h1>{recipe.name}</h1>
+      <h3>Category: {recipe.category}</h3>
+      <h4>Ingredients:</h4>
+      <ul>
+        {recipe.ingredients.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
+      </ul>
+      <h4>Instructions:</h4>
+      <p>{recipe.instructions}</p>
     </div>
+  );
+};
 
-    <div className="section">
-      <div className="section-header">
-        <h2>Cuisine</h2>
-        <button className="view-more-link">View More Recipes</button>
-      </div>
-      <div className="grid-row">
-        <RecipeCard onClick={onRecipeSelect} />
-        <RecipeCard onClick={onRecipeSelect} />
-        <RecipeCard onClick={onRecipeSelect} />
-        <RecipeCard onClick={onRecipeSelect} />
-      </div>
-    </div>
-
-    <div className="section">
-      <div className="section-header">
-        <h2>Saved Recipes</h2>
-        <button className="view-more-link">View More Recipes</button>
-      </div>
-      <div className="grid-row">
-        <RecipeCard onClick={onRecipeSelect} />
-        <RecipeCard onClick={onRecipeSelect} />
-        <RecipeCard onClick={onRecipeSelect} />
-        <RecipeCard onClick={onRecipeSelect} />
-      </div>
-    </div>
-  </div>
-);
-
-export default RecipesPage;
+export default RecipeDetail;

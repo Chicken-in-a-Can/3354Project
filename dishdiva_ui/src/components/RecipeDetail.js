@@ -1,21 +1,31 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-const RecipeDetail = ({ onBack }) => (
-  <div className="page-container">
-    <button onClick={onBack} className="back-button">← Back to Recipes</button>
+const RecipeDetail = ({ recipeId }) => {
+  const [recipe, setRecipe] = useState(null);
 
-    <div className="recipe-detail-layout">
-      <div className="recipe-info">
-        <h2>Recipe Name Placeholder</h2>
-        <p>Category: Healthy</p>
-        <p>Instructions: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sit amet ligula eget sapien laoreet pulvinar.</p>
-      </div>
+  useEffect(() => {
+    fetch(`/calls/recipe/${recipeId}`)
+      .then((res) => res.json())
+      .then((data) => setRecipe(data))
+      .catch((err) => console.error("Failed to fetch recipe", err));
+  }, [recipeId]);
 
-      <div className="recipe-image">
-        <div className="img-placeholder-large"></div>
-      </div>
+  if (!recipe) return <div>Loading...</div>;
+
+  return (
+    <div className="recipe-detail">
+      <h1>{recipe.name}</h1>
+      <h3>Category: {recipe.category}</h3>
+      <h4>Ingredients:</h4>
+      <ul>
+        {recipe.ingredients.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
+      </ul>
+      <h4>Instructions:</h4>
+      <p>{recipe.instructions}</p>
     </div>
-  </div>
-);
+  );
+};
 
 export default RecipeDetail;
