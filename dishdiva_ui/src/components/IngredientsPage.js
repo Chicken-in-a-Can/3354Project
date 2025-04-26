@@ -13,7 +13,6 @@ const Ingredients = ({ onNavigate }) => {
 
   return (
     <div className="page-container">
-      <div className="ingredients-title">Ingredients</div>
       <button
         className="update-button"
         onClick={() => onNavigate("update-ingredients")}
@@ -24,7 +23,7 @@ const Ingredients = ({ onNavigate }) => {
       <table className="ingredients-table">
         <thead>
           <tr>
-            <th>Ingredient</th>
+            <th>Name</th>
             <th>Quantity</th>
           </tr>
         </thead>

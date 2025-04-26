@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 class Nutrition(models.Model):
     calories = models.IntegerField(default=0)

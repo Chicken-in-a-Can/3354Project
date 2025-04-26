@@ -7,7 +7,7 @@ const HomePage = ({ onRecipeSelect }) => (
     <div className="section">
       <div className="section-header">
         <h2>Recommended/Featured</h2>
-        <button>View More Recipes</button>
+        <button className="view-more-link">View More Recipes</button>
       </div>
       <div className="grid-row">
         <RecipeCard onClick={onRecipeSelect} />

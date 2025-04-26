@@ -1,3 +1,4 @@
+
 from django.http import HttpResponse, JsonResponse
 
 from . import classes
@@ -19,14 +20,32 @@ def user(request, user_id):
     return HttpResponse(response % user_id)
 
 
+from django.views.decorators.csrf import csrf_exempt
+from .models import Ingredient
+
+@csrf_exempt
 def ingredient(request, ingredient_id):
-    ingredient = classes.Ingredient.fetch_ingredient(ingredient_id)
-    response = {
-        "name": ingredient.get_name(),
-        "nutrition": ingredient.get_nutrition(),
-        "unit": ingredient.get_unit(),
-    }
-    return JsonResponse(response)
+    if request.method == "DELETE":
+        Ingredient.objects.filter(id=ingredient_id).delete()
+        return JsonResponse({"message": "Deleted"})
+
+    elif request.method == "PUT":
+        data = json.loads(request.body)
+        Ingredient.objects.filter(id=ingredient_id).update(
+            name=data["name"],
+            quantity=data["quantity"]
+        )
+        return JsonResponse({"message": "Updated"})
+
+    elif request.method == "GET":
+        obj = Ingredient.objects.get(id=ingredient_id)
+        return JsonResponse({
+            "id": obj.id,
+            "name": obj.name,
+            "quantity": obj.quantity,
+        })
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
 def searchRecipe(request, search_request):
@@ -50,7 +69,7 @@ def getUserFromDb(request, search_request):
         })
     return JsonResponse({"results": results})
 
-def login(request):
+# def login(request):
     identifier = request.GET.get('email')
     password = request.GET.get('password')
 
@@ -62,8 +81,32 @@ def login(request):
         return JsonResponse({"message": "Login successful"})
     else:
         return JsonResponse({"message": "Invalid credentials"}, status=401)
+# from django.views.decorators.csrf import csrf_exempt
+# import json
+
 from django.views.decorators.csrf import csrf_exempt
 import json
+
+@csrf_exempt
+def login(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            identifier = data.get('email')  # or username if you prefer
+            password = data.get('password')
+
+            if not identifier or not password:
+                return JsonResponse({"error": "Missing email or password"}, status=400)
+
+            auth_system = classes.AuthSystem()
+            if auth_system.login(identifier, password):
+                return JsonResponse({"message": "Login successful"})
+            else:
+                return JsonResponse({"message": "Invalid credentials"}, status=401)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)
 
 @csrf_exempt
 def ingredients_list(request):
