@@ -4,28 +4,37 @@ import "../App.css";
 const LoginPage = ({ onSwitch }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
 
   const handleLogin = () => {
-    fetch("/login/", {
+    fetch("http://localhost:8000/login/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: username, password }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.message === "Login successful") {
-          alert("Login successful!");
-          // TODO: Redirect to homepage or set logged-in user
-        } else {
-          alert("Login failed: " + data.message);
+      .then((res) => {
+        if (!res.ok) {
+          return res.json().then((data) => {
+            throw new Error(data.message || "Login failed.");
+          });
         }
+        return res.json();
       })
-      .catch((err) => console.error("Login error:", err));
+      .then((data) => {
+        alert(data.message);
+        setError(null);
+        // TODO: Redirect to homepage or set logged-in user
+      })
+      .catch((err) => {
+        console.error("Login error:", err);
+        setError(err.message || "An unexpected error occurred.");
+      });
   };
 
   return (
     <div className="auth-page">
       <h2>Login to DishDiva</h2>
+      {error && <p className="error-message">{error}</p>}
       <input
         className="auth-input"
         type="text"

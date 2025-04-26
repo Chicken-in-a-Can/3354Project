@@ -18,7 +18,6 @@ const HomePage = ({ onRecipeSelect }) => (
     </div>
 
     <div className="section">
-      <h2>About Us</h2>
       <div className="text-line full"></div>
       <div className="text-line wide"></div>
     </div>

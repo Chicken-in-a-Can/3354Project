@@ -27,7 +27,8 @@ urlpatterns = [
     path("ingredients/", calls.ingredients_list, name="ingredients_list"),
     # path("search/<str:search_request>/", calls.search, name = "search"),
     path("searchRecipe/<str:search_request>/", calls.searchRecipe, name="searchRecipe"),
-    path("recipes", calls.all_recipes),
+    path('calls/recipes/', calls.all_recipes, name='all_recipes'),
     path("searchUser/<str:search_request>/", calls.getUserFromDb, name="getUserFromDb"),
     path("login/", calls.login, name="login"),
+    path('signup/', calls.signup, name='signup'),
 ]

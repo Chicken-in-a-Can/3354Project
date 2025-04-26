@@ -1,31 +1,47 @@
 import React, { useEffect, useState } from "react";
+import RecipeCard from "./RecipeCard";
+import "../App.css";
 
-const RecipeDetail = ({ recipeId }) => {
-  const [recipe, setRecipe] = useState(null);
+const RecipePage = ({ onNavigateToDetail }) => {
+  const [recipes, setRecipes] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`/calls/recipe/${recipeId}`)
-      .then((res) => res.json())
-      .then((data) => setRecipe(data))
-      .catch((err) => console.error("Failed to fetch recipe", err));
-  }, [recipeId]);
-
-  if (!recipe) return <div>Loading...</div>;
+    fetch("http://localhost:8000/calls/recipes/") // Ensure this matches your backend endpoint
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => setRecipes(data.results || [])) // Ensure results exist
+      .catch((error) => {
+        console.error("Error fetching recipes:", error);
+        setError("Failed to load recipes. Please try again later.");
+      });
+  }, []);
 
   return (
-    <div className="recipe-detail">
-      <h1>{recipe.name}</h1>
-      <h3>Category: {recipe.category}</h3>
-      <h4>Ingredients:</h4>
-      <ul>
-        {recipe.ingredients.map((item, index) => (
-          <li key={index}>{item}</li>
-        ))}
-      </ul>
-      <h4>Instructions:</h4>
-      <p>{recipe.instructions}</p>
+    <div className="page-container">
+      <h1>Recipes</h1>
+      {error ? (
+        <p>{error}</p>
+      ) : recipes.length > 0 ? (
+        <div className="recipe-list">
+          {recipes.map((recipe) => (
+            <RecipeCard
+              key={recipe.id}
+              name={recipe.name}
+              category={recipe.category}
+              onClick={() => onNavigateToDetail(recipe.id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <p>No recipes available. Please check back later.</p>
+      )}
     </div>
   );
 };
 
-export default RecipeDetail;
+export default RecipePage;
