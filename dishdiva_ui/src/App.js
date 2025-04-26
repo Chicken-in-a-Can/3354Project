@@ -7,13 +7,27 @@ import ProfilePage from "./components/ProfilePage";
 import RecipesPage from "./components/RecipePage";
 import IngredientsPage from "./components/IngredientsPage";
 import UpdateIngredientsPage from "./components/UpdateIngredients";
-import AuthController from "./AuthController";
-
-
+import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
 
 const App = () => {
-  const [activePage, setActivePage] = useState("home");
+  const [activePage, setActivePage] = useState("auth"); // Default to login page
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setActivePage("profile"); // Redirect to profile after login
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setActivePage("auth"); // Redirect to login page after logout
+  };
+
+  const handleSignupSuccess = () => {
+    setActivePage("auth"); // Redirect to login page after successful signup
+  };
 
   const renderPage = () => {
     if (selectedRecipe) return <RecipeDetail onBack={() => setSelectedRecipe(null)} />;
@@ -28,9 +42,21 @@ const App = () => {
       case "update-ingredients":
         return <UpdateIngredientsPage />;
       case "profile":
-        return <ProfilePage />;
+        return <ProfilePage onLogout={handleLogout} />; // Pass logout handler to ProfilePage
       case "auth":
-        return <AuthController />;
+        return (
+          <LoginPage
+            onLogin={handleLogin}
+            onSwitchToSignup={() => setActivePage("signup")} // Switch to signup page
+          />
+        );
+      case "signup":
+        return (
+          <SignupPage
+            onSignupSuccess={handleSignupSuccess} // Redirect to login after signup
+            onSwitchToLogin={() => setActivePage("auth")} // Switch to login page
+          />
+        );
       default:
         return <HomePage />;
     }
@@ -38,7 +64,7 @@ const App = () => {
 
   return (
     <div>
-      <NavigationBar onNavigate={setActivePage} />
+      {isLoggedIn && <NavigationBar isLoggedIn={isLoggedIn} onNavigate={setActivePage} />} {/* Pass isLoggedIn to NavigationBar */}
       {renderPage()}
     </div>
   );

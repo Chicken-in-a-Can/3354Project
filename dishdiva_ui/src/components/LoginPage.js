@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../App.css";
 
-const LoginPage = ({ onSwitch }) => {
+const LoginPage = ({ onLogin, onSwitchToSignup }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -23,7 +23,7 @@ const LoginPage = ({ onSwitch }) => {
       .then((data) => {
         alert(data.message);
         setError(null);
-        // TODO: Redirect to homepage or set logged-in user
+        onLogin(); // Notify App.js that the user is logged in
       })
       .catch((err) => {
         console.error("Login error:", err);
@@ -52,7 +52,7 @@ const LoginPage = ({ onSwitch }) => {
       <button className="auth-button" onClick={handleLogin}>
         Login
       </button>
-      <button className="auth-link" onClick={onSwitch}>
+      <button className="auth-link" onClick={onSwitchToSignup}>
         Don't have an account? Sign up
       </button>
     </div>

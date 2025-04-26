@@ -1,24 +1,14 @@
 import React, { useState } from "react";
 import "../App.css";
 
-const SignupPage = ({ onSwitch }) => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+const SignupPage = ({ onSignupSuccess, onSwitchToLogin }) => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = () => {
-    const { username, email, password, confirmPassword } = formData;
-  
+  const handleSignup = () => {
     if (!username || !email || !password || !confirmPassword) {
       setError("All fields are required.");
       return;
@@ -27,31 +17,28 @@ const SignupPage = ({ onSwitch }) => {
       setError("Passwords do not match.");
       return;
     }
-  
+
     fetch("http://localhost:8000/signup/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, password }),
     })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then((data) => {
-            throw new Error(data.error || "Failed to sign up.");
+      .then((res) => {
+        if (!res.ok) {
+          return res.json().then((data) => {
+            throw new Error(data.error || "Signup failed.");
           });
         }
-        return response.json();
+        return res.json();
       })
       .then((data) => {
-        setSuccess(data.message);
+        alert(data.message);
         setError(null);
-        setFormData({ username: "", email: "", password: "", confirmPassword: "" });
+        onSignupSuccess(); // Notify App.js to redirect to login
       })
       .catch((err) => {
-        console.error("Error:", err);
+        console.error("Signup error:", err);
         setError(err.message || "An unexpected error occurred.");
-        setSuccess(null);
       });
   };
 
@@ -59,43 +46,38 @@ const SignupPage = ({ onSwitch }) => {
     <div className="auth-page">
       <h2>Create Your DishDiva Account</h2>
       {error && <p className="error-message">{error}</p>}
-      {success && <p className="success-message">{success}</p>}
       <input
         className="auth-input"
         type="text"
-        name="username"
         placeholder="Username"
-        value={formData.username}
-        onChange={handleChange}
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
       />
       <input
         className="auth-input"
         type="email"
-        name="email"
         placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
       />
       <input
         className="auth-input"
         type="password"
-        name="password"
         placeholder="Password"
-        value={formData.password}
-        onChange={handleChange}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
       />
       <input
         className="auth-input"
         type="password"
-        name="confirmPassword"
         placeholder="Confirm Password"
-        value={formData.confirmPassword}
-        onChange={handleChange}
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
       />
-      <button className="auth-button" onClick={handleSubmit}>
+      <button className="auth-button" onClick={handleSignup}>
         Sign Up
       </button>
-      <button className="auth-link" onClick={onSwitch}>
+      <button className="auth-link" onClick={onSwitchToLogin}>
         Already have an account? Login
       </button>
     </div>

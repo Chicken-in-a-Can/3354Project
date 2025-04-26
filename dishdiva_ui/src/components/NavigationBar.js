@@ -1,6 +1,6 @@
 import React from "react";
 
-const NavigationBar = ({ onNavigate }) => (
+const NavigationBar = ({ isLoggedIn, onNavigate }) => (
   <nav className="navbar">
     <div className="nav-left">
       <button className="logo" onClick={() => onNavigate("home")}>DishDiva</button>
@@ -8,8 +8,11 @@ const NavigationBar = ({ onNavigate }) => (
     <div className="nav-right">
       <button onClick={() => onNavigate("recipes")}>Recipes</button>
       <button onClick={() => onNavigate("ingredients")}>Ingredients</button>
-      <button onClick={() => onNavigate("profile")}>Profile</button>
-      <button onClick={() => onNavigate("auth")}>Login</button> {/* only one button */}
+      {isLoggedIn ? (
+        <button onClick={() => onNavigate("profile")}>Profile</button>
+      ) : (
+        <button onClick={() => onNavigate("auth")}>Login</button>
+      )}
     </div>
   </nav>
 );
