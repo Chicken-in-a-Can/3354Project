@@ -38,7 +38,7 @@ const LoginPage = ({ onLogin, onSwitchToSignup }) => {
       <input
         className="auth-input"
         type="text"
-        placeholder="Email"
+        placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
