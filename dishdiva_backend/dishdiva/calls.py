@@ -144,7 +144,7 @@ def all_recipes(request):
             "id": recipe.id,
             "name": recipe.name,
             "category": recipe.category,
-            "ingredients": recipe.ingredients,  # Ensure this is returned correctly
+            "ingredients": [ingredient.ingredient.name for ingredient in recipe.ingredients.all()],  # Ensure this is returned correctly
         }
         for recipe in recipes
     ]
@@ -286,27 +286,58 @@ def update_profile(request):
 
 @csrf_exempt
 def add_recipe(request):
-    """
-    Handle adding a new recipe.
-    """
     if request.method == "POST":
         try:
             data = json.loads(request.body)
             name = data.get("name")
-            category = data.get("category")
-            ingredients = data.get("ingredients", [])
+            category_name = data.get("category")  
+            ingredient_names = data.get("ingredients", [])
 
-            if not name or not category or not ingredients:
+            if not name or not category_name or not ingredient_names:
                 return JsonResponse({"error": "Name, category, and ingredients are required."}, status=400)
 
-            # Create and save the new recipe
-            recipe = Recipe.objects.create(name=name, category=category, ingredients=ingredients)
+            category_map = {
+                "Generic": "N",
+                "Healthy": "H",
+                "Vegetarian": "VG",
+                "Vegan": "V",
+                "GlutenFree": "GF",
+            }
+
+            category_code = category_map.get(category_name)
+
+            if not category_code:
+                return JsonResponse({"error": "Invalid category."}, status=400)
+
+            
+            recipe = Recipe.objects.create(name=name, category=category_code, instructions="")
+
+            
+            for ing_name in ingredient_names:
+                
+                ingredient_obj, _ = models.Ingredient.objects.get_or_create(
+                    name=ing_name,
+                    defaults={
+                        "quantity": "1 unit",  
+                        "nutrition": models.Nutrition.objects.create(calories=0, sugars=0, carbs=0, protein=0),
+                    }
+                )
+
+
+                ingredient_relation = models.Ingredients.objects.create(
+                    ingredient=ingredient_obj,
+                    quantity=1.0 
+                )
+
+                recipe.ingredients.add(ingredient_relation)
+
             return JsonResponse({
                 "id": recipe.id,
                 "name": recipe.name,
-                "category": recipe.category,
-                "ingredients": recipe.ingredients,
+                "category": category_name,  # send back full name
+                "ingredients": [ing.ingredient.name for ing in recipe.ingredients.all()],
             }, status=201)
+
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
