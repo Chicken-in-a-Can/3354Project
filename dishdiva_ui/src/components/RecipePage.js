@@ -93,13 +93,22 @@ const RecipePage = () => {
             onChange={(e) => setNewRecipe({ ...newRecipe, name: e.target.value })}
             style={{ marginRight: "1rem", padding: "0.5rem" }}
           />
-          <input
-            type="text"
-            placeholder="Category"
+          <select
             value={newRecipe.category}
             onChange={(e) => setNewRecipe({ ...newRecipe, category: e.target.value })}
             style={{ marginRight: "1rem", padding: "0.5rem" }}
-          />
+          >
+            <option value="">Select Category</option>
+            <option value="Generic">Generic</option>
+            <option value="Healthy">Healthy</option>
+            <option value="Vegetarian">Vegetarian</option>
+            <option value="Vegan">Vegan</option>
+            <option value="GlutenFree">GlutenFree</option>
+            <option value="HighProtein">HighProtein</option>
+            <option value="LowCarb">LowCarb</option>
+            <option value="Keto">Keto</option>
+            <option value="Paleo">Paleo</option>
+          </select>
           <div style={{ marginTop: "1rem" }}>
             <input
               type="text"
