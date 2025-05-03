@@ -18,16 +18,16 @@ class Ingredients(models.Model):
 
 class Recipe(models.Model):
     CATEGORIES = [
-        ("N", "Generic"),
-        ("H", "Healthy"),
-        ("VG", "Vegetarian"),
-        ("V", "Vegan"),
-        ("GF", "GlutenFree"),
+        ("Generic", "Generic"),
+        ("Healthy", "Healthy"),
+        ("Vegetarian", "Vegetarian"),
+        ("Vegan", "Vegan"),
+        ("GlutenFree", "GlutenFree"),
     ]
 
 
     name = models.CharField(max_length=200)
-    category = models.CharField(max_length=2, choices=CATEGORIES)
+    category = models.CharField(max_length=15, choices=CATEGORIES)
     instructions = models.CharField(max_length=200000)
     ingredients = models.ManyToManyField(Ingredients)
 
