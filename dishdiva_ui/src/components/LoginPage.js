@@ -23,7 +23,12 @@ const LoginPage = ({ onLogin, onSwitchToSignup }) => {
       .then((data) => {
         alert(data.message);
         setError(null);
-        onLogin(); // Notify App.js that the user is logged in
+
+        // Save userId and username to localStorage
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("username", data.username);
+
+        onLogin();
       })
       .catch((err) => {
         console.error("Login error:", err);
