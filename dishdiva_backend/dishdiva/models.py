@@ -17,20 +17,21 @@ class Ingredients(models.Model):
     quantity = models.FloatField(default=0.0)
 
 class Recipe(models.Model):
-    CATEGORIES = {
-        "N" : "Generic",
-        "H" : "Healthy",
-        "VG" : "Vegetarian",
-        "V" : "Vegan",
-        "GF" : "GlutenFree",
-    }
+    CATEGORIES = [
+        ("N", "Generic"),
+        ("H", "Healthy"),
+        ("VG", "Vegetarian"),
+        ("V", "Vegan"),
+        ("GF", "GlutenFree"),
+    ]
+
 
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=2, choices=CATEGORIES)
     instructions = models.CharField(max_length=200000)
     ingredients = models.ManyToManyField(Ingredients)
 
-class User(models.Model):
+class AppUser(models.Model):
     name = models.CharField(max_length=200)
     email = models.CharField(max_length=200)
     password = models.CharField(max_length=200)
