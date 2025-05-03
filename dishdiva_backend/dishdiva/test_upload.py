@@ -1,19 +1,10 @@
-import django
-import os
-import sys
-
-# Setup Django environment
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))  # ensures dishdiva_backend is on sys.path
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dishdiva.settings")
-django.setup()
-
 import unittest
-from dishdiva.classes import Recipe, Ingredient, Nutrition, User
+from classes import Recipe, Ingredient, Nutrition, User
 
 class TestRecipeUpload(unittest.TestCase):
     def setUp(self):
-        self.lettuce_nutrition = Nutrition(15, 0.2, 2.9, 1.3)
-        self.tomato_nutrition = Nutrition(18, 2.6, 3.9, 0.9)
+        self.lettuce_nutrition = Nutrition("Lettuce", 15, 0.2, 2.9, 1.3)
+        self.tomato_nutrition = Nutrition("Tomato", 18, 2.6, 3.9, 0.9)
         self.lettuce = Ingredient("Lettuce", "grams", self.lettuce_nutrition)
         self.tomato = Ingredient("Tomato", "pieces", self.tomato_nutrition)
         self.user = User("chef123", "chef@cooking.com", "ValidPass123!")
