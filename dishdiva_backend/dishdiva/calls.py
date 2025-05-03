@@ -1,4 +1,3 @@
-
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
@@ -9,18 +8,11 @@ from . import models
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-from .models import Recipe
-from .models import Ingredient
-
-
+from .models import Recipe, Ingredient, AppUser
 
 def user(request, user_id):
     response = "You're user %s"
     return HttpResponse(response % user_id)
-
-
-from django.views.decorators.csrf import csrf_exempt
-from .models import Ingredient
 
 @csrf_exempt
 def ingredient(request, ingredient_id):
@@ -46,7 +38,6 @@ def ingredient(request, ingredient_id):
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
-
 def searchRecipe(request, search_request):
     recipes = models.Recipe.objects.filter(name__icontains=search_request)
     results = []
@@ -68,41 +59,33 @@ def getUserFromDb(request, search_request):
         })
     return JsonResponse({"results": results})
 
-# def login(request):
-    identifier = request.GET.get('email')
-    password = request.GET.get('password')
-
-    if not identifier or not password:
-        return JsonResponse({"error": "Missing email or password"}, status=400)
-
-    auth_system = classes.AuthSystem()
-    if auth_system.login(identifier, password):
-        return JsonResponse({"message": "Login successful"})
-    else:
-        return JsonResponse({"message": "Invalid credentials"}, status=401)
-# from django.views.decorators.csrf import csrf_exempt
-# import json
-
 @csrf_exempt
 def login(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            identifier = data.get('email')  # or username if you prefer
-            password = data.get('password')
+            email = data.get("email")
+            password = data.get("password")
 
-            if not identifier or not password:
-                return JsonResponse({"error": "Missing email or password"}, status=400)
+            if not email or not password:
+                return JsonResponse({"message": "Email and password are required."}, status=400)
 
-            auth_system = classes.AuthSystem()
-            if auth_system.login(identifier, password):
-                return JsonResponse({"message": "Login successful"})
+            # Use AppUser instead of authenticate()
+            user = models.AppUser.objects.filter(email=email, password=password).first()
+
+            if user:
+                return JsonResponse({
+                    "message": "Login successful",
+                    "userId": user.id,
+                    "username": user.name
+                }, status=200)
             else:
-                return JsonResponse({"message": "Invalid credentials"}, status=401)
+                return JsonResponse({"message": "Invalid email or password."}, status=401)
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
+            return JsonResponse({"message": str(e)}, status=500)
 
-    return JsonResponse({"error": "Method not allowed"}, status=405)
+    return JsonResponse({"message": "Invalid request method."}, status=405)
+
 
 @csrf_exempt
 def ingredients_list(request):
@@ -138,8 +121,6 @@ def ingredients_list(request):
         )
         return JsonResponse({"id": ingredient.id, "message": "Ingredient created"})
 
-
-
 def all_recipes(request):
     recipes = Recipe.objects.all()
     recipe_list = [
@@ -147,18 +128,14 @@ def all_recipes(request):
             "id": recipe.id,
             "name": recipe.name,
             "category": recipe.category,
-            "ingredients": [ingredient.ingredient.name for ingredient in recipe.ingredients.all()],  # Ensure this is returned correctly
+            "ingredients": [ingredient.ingredient.name for ingredient in recipe.ingredients.all()],
         }
         for recipe in recipes
     ]
     return JsonResponse({"results": recipe_list}, status=200)
 
 def recipe(request, recipe_id):
-    """
-    Fetch a single recipe by its ID and return its details as a JSON response.
-    """
     try:
-        # Fetch the recipe from the database
         recipe = models.Recipe.objects.get(id=recipe_id)
         response = {
             "id": recipe.id,
@@ -169,18 +146,10 @@ def recipe(request, recipe_id):
         }
         return JsonResponse(response)
     except models.Recipe.DoesNotExist:
-        # Return a 404 error if the recipe is not found
         return JsonResponse({"error": "Recipe not found"}, status=404)
-    
-
-
-
 
 @csrf_exempt
 def signup(request):
-    """
-    Handle user signup requests.
-    """
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -188,18 +157,15 @@ def signup(request):
             email = data.get("email")
             password = data.get("password")
 
-            # Validate input
             if not username or not email or not password:
                 return JsonResponse({"error": "All fields are required."}, status=400)
 
-            # Check if the user already exists
-            if User.objects.filter(username=username).exists():
+            if models.AppUser.objects.filter(name=username).exists():
                 return JsonResponse({"error": "Username is already taken."}, status=400)
-            if User.objects.filter(email=email).exists():
+            if models.AppUser.objects.filter(email=email).exists():
                 return JsonResponse({"error": "Email is already registered."}, status=400)
 
-            # Create the user
-            user = User.objects.create_user(username=username, email=email, password=password)
+            user = models.AppUser.objects.create(name=username, email=email, password=password)
 
             return JsonResponse({"message": "User registered successfully."}, status=201)
         except Exception as e:
@@ -208,75 +174,34 @@ def signup(request):
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
 
-@csrf_exempt
-def login(request):
-    """
-    Handle user login requests.
-    """
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            email = data.get("email")
-            password = data.get("password")
-
-            # Validate input
-            if not email or not password:
-                return JsonResponse({"message": "Email and password are required."}, status=400)
-
-            # Authenticate user
-            user = authenticate(username=email, password=password)
-            if user is not None:
-                return JsonResponse({"message": "Login successful"}, status=200)
-            else:
-                return JsonResponse({"message": "Invalid email or password."}, status=401)
-        except Exception as e:
-            return JsonResponse({"message": str(e)}, status=500)
-
-    return JsonResponse({"message": "Invalid request method."}, status=405)
-    
-
-
-
 def get_user(request, user_id):
-    """
-    Fetch user data by ID.
-    """
     try:
-        user = User.objects.get(id=user_id)
+        user = AppUser.objects.get(id=user_id)
         return JsonResponse({
             "username": user.username,
         }, status=200)
     except User.DoesNotExist:
         return JsonResponse({"error": "User not found."}, status=404)
 
-
 @csrf_exempt
 def update_profile(request):
-    """
-    Handle profile updates (name and profile picture).
-    """
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            user_id = data.get("user_id")  # Pass the logged-in user's ID
+            user_id = data.get("user_id")
             new_name = data.get("name")
-            profile_picture = data.get("profile_picture")  # Base64 encoded image
+            profile_picture = data.get("profile_picture")
 
-            # Validate input
             if not user_id or not new_name:
                 return JsonResponse({"error": "User ID and name are required."}, status=400)
 
-            # Get the user
-            user = User.objects.get(id=user_id)
-
-            # Update the user's name
+            user = AppUser.objects.get(id=user_id)
             user.username = new_name
 
-            # Update the profile picture if provided
             if profile_picture:
                 format, imgstr = profile_picture.split(";base64,")
-                ext = format.split("/")[-1]  # Get the file extension
-                if ext not in ["png", "jpg", "jpeg"]:  # Validate file type
+                ext = format.split("/")[-1]
+                if ext not in ["png", "jpg", "jpeg"]:
                     return JsonResponse({"error": "Invalid file type."}, status=400)
                 user.profile_picture.save(f"profile_{user.id}.{ext}", ContentFile(base64.b64decode(imgstr)))
 
@@ -291,17 +216,18 @@ def update_profile(request):
 def add_recipe(request):
     if request.method == "POST":
         try:
-            # Parse the request body
             data = json.loads(request.body)
             name = data.get("name")
             category_name = data.get("category")
             ingredient_names = data.get("ingredients", [])
+            user_id = data.get("user_id")  # <--- FIXED
 
-            # Validate the input
-            if not name or not category_name or not ingredient_names:
-                return JsonResponse({"error": "Name, category, and ingredients are required."}, status=400)
+            if not name or not category_name or not ingredient_names or not user_id:
+                return JsonResponse({"error": "Name, category, ingredients, and user_id are required."}, status=400)
 
-            # Map category names to codes
+            user = models.AppUser.objects.get(id=user_id)
+
+
             category_map = {
                 "Generic": "N",
                 "Healthy": "H",
@@ -311,27 +237,25 @@ def add_recipe(request):
             }
 
             category_code = category_map.get(category_name)
-
             if not category_code:
                 return JsonResponse({"error": "Invalid category."}, status=400)
 
-            # Create the recipe
             recipe = Recipe.objects.create(name=name, category=category_code, instructions="")
 
-            # Add ingredients to the recipe (without linking to the user's general ingredients)
             for ing_name in ingredient_names:
-                # Create a new ingredient for the recipe only
                 ingredient_relation = models.Ingredients.objects.create(
                     ingredient=models.Ingredient.objects.create(
                         name=ing_name,
-                        quantity="1 unit",  # Default quantity for the recipe
+                        quantity="1 unit",
                         nutrition=models.Nutrition.objects.create(calories=0, sugars=0, carbs=0, protein=0),
                     ),
-                    quantity=1.0  # Default quantity for the recipe
+                    quantity=1.0
                 )
                 recipe.ingredients.add(ingredient_relation)
 
-            # Return the created recipe
+            # FIXED HERE → ADD RECIPE TO USER
+            user.recipes.add(recipe)
+
             return JsonResponse({
                 "id": recipe.id,
                 "name": recipe.name,
@@ -340,26 +264,27 @@ def add_recipe(request):
             }, status=201)
 
         except Exception as e:
-            # Log the error for debugging
-            print(f"Error adding recipe: {e}")
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
-@login_required
-def get_ingredients(request):
-    ingredients = Ingredient.objects.filter(user=request.user)
-    data = [{"name": ing.name, "quantity": ing.quantity} for ing in ingredients]
-    return JsonResponse(data, safe=False)
-
 @csrf_exempt
-@login_required
-def add_ingredient(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        ingredient = Ingredient.objects.create(
-            user=request.user,
-            name=data["name"],
-            quantity=data["quantity"],
-        )
-        return JsonResponse({"name": ingredient.name, "quantity": ingredient.quantity})
+def user_recipes(request, user_id):
+    try:
+        user = models.AppUser.objects.get(id=user_id)
+
+        recipes = user.recipes.all()
+
+        recipe_list = [
+            {
+                "id": recipe.id,
+                "name": recipe.name,
+                "category": recipe.category,
+                "ingredients": [ingredient.ingredient.name for ingredient in recipe.ingredients.all()],
+            }
+            for recipe in recipes
+        ]
+        return JsonResponse({"results": recipe_list}, status=200)
+
+    except models.User.DoesNotExist:
+        return JsonResponse({"error": "User not found."}, status=404)
