@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+
 from . import calls
 
 urlpatterns = [
@@ -34,4 +35,6 @@ urlpatterns = [
     path("update_profile/", calls.update_profile, name="update_profile"),
     path("get_user/<int:user_id>/", calls.get_user, name="get_user"),
     path("calls/add_recipe/", calls.add_recipe, name="add_recipe"),
+    path('ingredients/', calls.get_ingredients, name='get_ingredients'),
+    path('ingredients/add/', calls.add_ingredient, name='add_ingredient'),
 ]

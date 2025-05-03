@@ -17,7 +17,7 @@ const App = () => {
 
   const handleLogin = () => {
     setIsLoggedIn(true);
-    setActivePage("profile"); // Redirect to profile after login
+    setActivePage("home"); // Redirect to profile after login
   };
 
   const handleLogout = () => {

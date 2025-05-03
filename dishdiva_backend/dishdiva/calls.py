@@ -8,7 +8,10 @@ from . import classes
 from . import models
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
 from .models import Recipe
+from .models import Ingredient
+
 
 
 def user(request, user_id):
@@ -288,14 +291,17 @@ def update_profile(request):
 def add_recipe(request):
     if request.method == "POST":
         try:
+            # Parse the request body
             data = json.loads(request.body)
             name = data.get("name")
-            category_name = data.get("category")  
+            category_name = data.get("category")
             ingredient_names = data.get("ingredients", [])
 
+            # Validate the input
             if not name or not category_name or not ingredient_names:
                 return JsonResponse({"error": "Name, category, and ingredients are required."}, status=400)
 
+            # Map category names to codes
             category_map = {
                 "Generic": "N",
                 "Healthy": "H",
@@ -309,36 +315,51 @@ def add_recipe(request):
             if not category_code:
                 return JsonResponse({"error": "Invalid category."}, status=400)
 
-            
+            # Create the recipe
             recipe = Recipe.objects.create(name=name, category=category_code, instructions="")
 
-            
+            # Add ingredients to the recipe (without linking to the user's general ingredients)
             for ing_name in ingredient_names:
-                
-                ingredient_obj, _ = models.Ingredient.objects.get_or_create(
-                    name=ing_name,
-                    defaults={
-                        "quantity": "1 unit",  
-                        "nutrition": models.Nutrition.objects.create(calories=0, sugars=0, carbs=0, protein=0),
-                    }
-                )
-
-
+                # Create a new ingredient for the recipe only
                 ingredient_relation = models.Ingredients.objects.create(
-                    ingredient=ingredient_obj,
-                    quantity=1.0 
+                    ingredient=models.Ingredient.objects.create(
+                        name=ing_name,
+                        quantity="1 unit",  # Default quantity for the recipe
+                        nutrition=models.Nutrition.objects.create(calories=0, sugars=0, carbs=0, protein=0),
+                    ),
+                    quantity=1.0  # Default quantity for the recipe
                 )
-
                 recipe.ingredients.add(ingredient_relation)
 
+            # Return the created recipe
             return JsonResponse({
                 "id": recipe.id,
                 "name": recipe.name,
-                "category": category_name,  # send back full name
+                "category": category_name,
                 "ingredients": [ing.ingredient.name for ing in recipe.ingredients.all()],
             }, status=201)
 
         except Exception as e:
+            # Log the error for debugging
+            print(f"Error adding recipe: {e}")
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
+
+@login_required
+def get_ingredients(request):
+    ingredients = Ingredient.objects.filter(user=request.user)
+    data = [{"name": ing.name, "quantity": ing.quantity} for ing in ingredients]
+    return JsonResponse(data, safe=False)
+
+@csrf_exempt
+@login_required
+def add_ingredient(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        ingredient = Ingredient.objects.create(
+            user=request.user,
+            name=data["name"],
+            quantity=data["quantity"],
+        )
+        return JsonResponse({"name": ingredient.name, "quantity": ingredient.quantity})

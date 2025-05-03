@@ -47,10 +47,10 @@ const RecipePage = () => {
         return response.json();
       })
       .then((data) => {
-        setRecipes((prevRecipes) => [...prevRecipes, data]); // Add the new recipe to the list
-        setNewRecipe({ name: "", category: "", ingredients: [] }); // Reset the form
-        setIngredientInput(""); // Reset the ingredient input
-        setAddError(null); // Clear any previous errors
+        setRecipes((prevRecipes) => [...prevRecipes, data]); 
+        setNewRecipe({ name: "", category: "", ingredients: [] }); 
+        setIngredientInput(""); 
+        setAddError(null); 
       })
       .catch((error) => {
         console.error("Error adding recipe:", error);
