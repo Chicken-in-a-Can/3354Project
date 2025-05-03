@@ -27,6 +27,7 @@ const LoginPage = ({ onLogin, onSwitchToSignup }) => {
         // Save userId and username to localStorage
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("username", data.username);
+        
 
         onLogin();
       })
