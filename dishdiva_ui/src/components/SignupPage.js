@@ -8,9 +8,22 @@ const SignupPage = ({ onSignupSuccess, onSwitchToLogin }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
 
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSignup = () => {
     if (!username || !email || !password || !confirmPassword) {
       setError("All fields are required.");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (password.length <= 5) {
+      setError("Password must be greater than 5 characters.");
       return;
     }
     if (password !== confirmPassword) {
