@@ -229,11 +229,11 @@ def add_recipe(request):
 
 
             category_map = {
-                "Generic": "N",
-                "Healthy": "H",
-                "Vegetarian": "VG",
-                "Vegan": "V",
-                "GlutenFree": "GF",
+                "Generic": "Generic",
+                "Healthy": "Healthy",
+                "Vegetarian": "Vegetarian",
+                "Vegan": "Vegan",
+                "GlutenFree": "GlutenFree",
             }
 
             category_code = category_map.get(category_name)
