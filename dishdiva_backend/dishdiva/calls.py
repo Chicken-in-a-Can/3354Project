@@ -128,6 +128,7 @@ def all_recipes(request):
             "id": recipe.id,
             "name": recipe.name,
             "category": recipe.category,
+            "instructions": recipe.instructions,
             "ingredients": [ingredient.ingredient.name for ingredient in recipe.ingredients.all()],
         }
         for recipe in recipes
@@ -240,7 +241,9 @@ def add_recipe(request):
             if not category_code:
                 return JsonResponse({"error": "Invalid category."}, status=400)
 
-            recipe = Recipe.objects.create(name=name, category=category_code, instructions="")
+            instructions = data.get("instructions", "")
+            recipe = Recipe.objects.create(name=name, category=category_code, instructions=instructions)
+
 
             for ing_name in ingredient_names:
                 ingredient_relation = models.Ingredients.objects.create(
