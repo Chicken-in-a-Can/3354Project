@@ -1,14 +1,23 @@
+import django
+import os
+import sys
+
+# Setup Django environment
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))  # ensures dishdiva_backend is on sys.path
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dishdiva.settings")
+django.setup()
+
 # test_ingredients.py
 
 import unittest
-from classes import User, Ingredient, Nutrition
+from dishdiva.classes import User, Ingredient, Nutrition
 
 class TestIngredientUpload(unittest.TestCase):
 
     def setUp(self):
         # Initialize a user and a valid nutrition object for reuse
         self.user = User("tester01", "tester@example.com", "Validpass123")
-        self.valid_nutrition = Nutrition("Cheese Nutrition", 100, 2, 5, 6)
+        self.valid_nutrition = Nutrition(100, 2, 5, 6)
 
     def try_add_ingredient(self, name, quantity):
         # Helper method to add ingredient and catch potential errors
