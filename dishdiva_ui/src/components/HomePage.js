@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from "react";
+import RecipeCard from "./RecipeCard";
+import "../App.css";
 
-const HomePage = () => {
+const HomePage = ({ onRecipeSelect }) => {
   const [recipes, setRecipes] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:8000/calls/recipes/")
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then((data) => setRecipes(data.results || []))
       .catch((error) => {
         console.error("Error fetching recipes:", error);
-        setError("Failed to load recipes.");
+        setError("Failed to load recipes. Please try again later.");
       });
   }, []);
 
