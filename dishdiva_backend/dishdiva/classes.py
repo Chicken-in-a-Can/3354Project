@@ -22,7 +22,10 @@ class User(AppConfig):
 
     # Original ingredient/recipe methods
     def add_ingredient(self, ingredient, quantity):
+        if quantity <= 0:
+            raise ValueError("Quantity must be a positive number")
         self.__ingredients.append((ingredient, quantity))
+
 
     def get_ingredients(self):
         return self.__ingredients.copy()
@@ -351,3 +354,30 @@ class Recipe(AppConfig):
 
     def fetch_recipe(recp):
         return recipe(recp.name, recp.category, recp.instructions)
+
+class RecipeSearch:
+    def __init__(self, auth_system: AuthSystem):
+        self.auth_system = auth_system
+
+    def search(self, query: str) -> List[Recipe]:
+        if not isinstance(query, str):
+            raise ValueError("Search query must be a string")
+        if len(query) > 1000:
+            raise ValueError("Search is too long")
+        if any(c in query for c in [';', '"', "'"]):
+            raise ValueError("Invalid characters in search query")
+
+        # Remove wildcard character for partial matching
+        cleaned_query = query.lower().replace("*", "").strip()
+
+        all_recipes = []
+        for user in self.auth_system.predefined_users:
+            all_recipes.extend(user.get_recipes())
+
+        if not cleaned_query:
+            return []
+
+        return [
+            recipe for recipe in all_recipes
+            if cleaned_query in recipe.get_title().lower()
+        ]

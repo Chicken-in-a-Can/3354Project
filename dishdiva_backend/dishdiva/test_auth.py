@@ -1,4 +1,13 @@
-from classes import User, AuthSystem  # Correct import
+import django
+import os
+import sys
+
+# Setup Django environment
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))  # ensures dishdiva_backend is on sys.path
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dishdiva.settings")
+django.setup()
+
+from dishdiva.classes import User, AuthSystem  # Correct import
 import unittest
 
 class TestAuthSystem(unittest.TestCase):

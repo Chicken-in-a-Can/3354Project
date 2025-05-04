@@ -1,22 +1,34 @@
+import django
+import os
+import sys
+
+# Setup Django environment
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))  # ensures dishdiva_backend is on sys.path
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dishdiva.settings")
+django.setup()
+
 import unittest
-from classes import AuthSystem, RecipeSearch, User, Recipe, Ingredient, Nutrition
+from dishdiva.classes import AuthSystem, RecipeSearch, User, Recipe, Ingredient, Nutrition
 
 class TestRecipeSearch(unittest.TestCase):
     def setUp(self):
-        # Setup auth system with test users
         self.auth = AuthSystem()
         self.search = RecipeSearch(self.auth)
-        
+
+        # Clear any existing recipes
+        for user in self.auth.predefined_users:
+            user.set_recipes([])
+
         # Add test recipes
         user = self.auth.predefined_users[0]
-        lettuce_nutrition = Nutrition("Lettuce", 15, 0.2, 2.9, 1.3)
-        tomato_nutrition = Nutrition("Tomato", 18, 2.6, 3.9, 0.9)
-        
-        # Create valid recipes
+        lettuce_nutrition = Nutrition(15, 0.2, 2.9, 1.3)
+        tomato_nutrition = Nutrition(18, 2.6, 3.9, 0.9)
+
         salad = Recipe("Awesome Salad", "Healthy")
         salad.add_ingredient(Ingredient("Lettuce", "grams", lettuce_nutrition), 10)
         salad.add_ingredient(Ingredient("Tomato", "pieces", tomato_nutrition), 2)
         user.upload_recipe(salad)
+
 
     # Test Case 1: Valid exact match
     def test_valid_exact_search(self):
