@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
+import RecipeCard from "./RecipeCard";
 import "../App.css";
 
-const RecipePage = () => {
+const RecipesPage = ({ onRecipeSelect }) => {
   const [recipes, setRecipes] = useState([]);
   const [error, setError] = useState(null);
-  const [newRecipe, setNewRecipe] = useState({ name: "", category: "", ingredients: [] });
-  const [ingredientInput, setIngredientInput] = useState("");
+  const [newRecipe, setNewRecipe] = useState({ name: "", category: "", ingredients: [], instructions: "" });
+  const [ingredientInput, setIngredientInput] = useState(""); 
   const [addError, setAddError] = useState(null);
 
-  const userId = localStorage.getItem("userId");
-
   useEffect(() => {
-    if (!userId) {
-      setError("User not logged in.");
-      return;
-    }
-
-    fetch(`http://localhost:8000/user/${userId}/recipes/`)
+    fetch("http://localhost:8000/calls/recipes/")
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -26,27 +20,22 @@ const RecipePage = () => {
       .then((data) => setRecipes(data.results || []))
       .catch((error) => {
         console.error("Error fetching recipes:", error);
-        setError("No recipes available");
+        setError("Failed to load recipes. Please try again later.");
       });
-  }, [userId]);
+  }, []);
 
   const handleAddRecipe = (e) => {
     e.preventDefault();
 
-    if (!newRecipe.name || !newRecipe.category || newRecipe.ingredients.length === 0) {
-      setAddError("Name, category, and at least one ingredient are required.");
+    if (!newRecipe.name || !newRecipe.category || newRecipe.ingredients.length === 0 || !newRecipe.instructions.trim()) {
+      setAddError("All fields (name, category, ingredients, and instructions) are required.");
       return;
     }
 
     fetch("http://localhost:8000/calls/add_recipe/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...newRecipe,
-        user_id: userId
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newRecipe),
     })
       .then((response) => {
         if (!response.ok) {
@@ -56,8 +45,8 @@ const RecipePage = () => {
       })
       .then((data) => {
         setRecipes((prevRecipes) => [...prevRecipes, data]);
-        setNewRecipe({ name: "", category: "", ingredients: [] });
-        setIngredientInput("");
+        setNewRecipe({ name: "", category: "", ingredients: [], instructions: "" });
+        setIngredientInput(""); 
         setAddError(null);
       })
       .catch((error) => {
@@ -68,12 +57,11 @@ const RecipePage = () => {
 
   const handleAddIngredient = () => {
     if (ingredientInput.trim() === "") return;
-
     setNewRecipe((prevRecipe) => ({
       ...prevRecipe,
       ingredients: [...prevRecipe.ingredients, ingredientInput.trim()],
     }));
-    setIngredientInput("");
+    setIngredientInput(""); 
   };
 
   const handleRemoveIngredient = (index) => {
@@ -85,9 +73,9 @@ const RecipePage = () => {
 
   return (
     <div className="page-container">
-      <h1>My Recipes</h1>
+      <h1>Recipes</h1>
 
-      <div className="add-recipe-form" style={{ marginBottom: "2rem" }}>
+      <div className="add-recipe-form">
         <h2>Add a New Recipe</h2>
         <form onSubmit={handleAddRecipe}>
           <input
@@ -95,12 +83,12 @@ const RecipePage = () => {
             placeholder="Recipe Name"
             value={newRecipe.name}
             onChange={(e) => setNewRecipe({ ...newRecipe, name: e.target.value })}
-            style={{ marginRight: "1rem", padding: "0.5rem" }}
+            style={{ padding: "0.5rem" }}
           />
           <select
             value={newRecipe.category}
             onChange={(e) => setNewRecipe({ ...newRecipe, category: e.target.value })}
-            style={{ marginRight: "1rem", padding: "0.5rem" }}
+            style={{ padding: "0.5rem" }}
           >
             <option value="">Select Category</option>
             <option value="Generic">Generic</option>
@@ -108,42 +96,44 @@ const RecipePage = () => {
             <option value="Vegetarian">Vegetarian</option>
             <option value="Vegan">Vegan</option>
             <option value="GlutenFree">GlutenFree</option>
+            <option value="HighProtein">HighProtein</option>
+            <option value="LowCarb">LowCarb</option>
+            <option value="Keto">Keto</option>
+            <option value="Paleo">Paleo</option>
           </select>
-          <div style={{ marginTop: "1rem" }}>
+
+          <div>
             <input
               type="text"
               placeholder="Add Ingredient"
               value={ingredientInput}
               onChange={(e) => setIngredientInput(e.target.value)}
-              style={{ marginRight: "1rem", padding: "0.5rem" }}
+              style={{ padding: "0.5rem" }}
             />
-            <button type="button" onClick={handleAddIngredient} style={{ padding: "0.5rem 1rem" }}>
+            <button type="button" onClick={handleAddIngredient} style={{ padding: "0.5rem" }}>
               Add Ingredient
             </button>
           </div>
-          <ul style={{ marginTop: "1rem" }}>
+
+          <ul>
             {newRecipe.ingredients.map((ingredient, index) => (
-              <li key={index} style={{ marginBottom: "0.5rem" }}>
+              <li key={index}>
                 {ingredient}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveIngredient(index)}
-                  style={{
-                    marginLeft: "1rem",
-                    padding: "0.2rem 0.5rem",
-                    backgroundColor: "red",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
+                <button type="button" onClick={() => handleRemoveIngredient(index)} style={{ marginLeft: "1rem" }}>
                   Remove
                 </button>
               </li>
             ))}
           </ul>
-          <button type="submit" style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
+
+          <textarea
+            placeholder="Enter instructions here..."
+            value={newRecipe.instructions}
+            onChange={(e) => setNewRecipe({ ...newRecipe, instructions: e.target.value })}
+            style={{ width: "100%", padding: "0.5rem" }}
+          ></textarea>
+
+          <button type="submit" style={{ padding: "0.5rem", marginTop: "1rem" }}>
             Add Recipe
           </button>
         </form>
@@ -155,11 +145,7 @@ const RecipePage = () => {
       ) : recipes.length > 0 ? (
         <div className="recipe-list">
           {recipes.map((recipe) => (
-            <div key={recipe.id} className="recipe-item" style={{ marginBottom: "1rem" }}>
-              <h2>{recipe.name}</h2>
-              <p><strong>Category:</strong> {recipe.category}</p>
-              <p><strong>Ingredients:</strong> {recipe.ingredients.join(", ")}</p>
-            </div>
+            <RecipeCard key={recipe.id} recipe={recipe} onClick={() => onRecipeSelect(recipe)} />
           ))}
         </div>
       ) : (
@@ -169,4 +155,4 @@ const RecipePage = () => {
   );
 };
 
-export default RecipePage;
+export default RecipesPage;
