@@ -30,37 +30,38 @@ const App = () => {
   };
 
   const renderPage = () => {
-    if (selectedRecipe) return <RecipeDetail onBack={() => setSelectedRecipe(null)} />;
-
+    if (selectedRecipe) return <RecipeDetail recipe={selectedRecipe} onBack={() => setSelectedRecipe(null)} />;
+  
     switch (activePage) {
       case "home":
-        return <HomePage onRecipeSelect={() => setSelectedRecipe(true)} />;
+        return <HomePage onRecipeSelect={(recipe) => setSelectedRecipe(recipe)} />;
       case "recipes":
-        return <RecipesPage onRecipeSelect={() => setSelectedRecipe(true)} />;
+        return <RecipesPage onRecipeSelect={(recipe) => setSelectedRecipe(recipe)} />;
       case "ingredients":
         return <IngredientsPage onNavigate={setActivePage} />;
       case "update-ingredients":
         return <UpdateIngredientsPage />;
       case "profile":
-        return <ProfilePage onLogout={handleLogout} />; // Pass logout handler to ProfilePage
+        return <ProfilePage onLogout={handleLogout} />;
       case "auth":
         return (
           <LoginPage
             onLogin={handleLogin}
-            onSwitchToSignup={() => setActivePage("signup")} // Switch to signup page
+            onSwitchToSignup={() => setActivePage("signup")}
           />
         );
       case "signup":
         return (
           <SignupPage
-            onSignupSuccess={handleSignupSuccess} // Redirect to login after signup
-            onSwitchToLogin={() => setActivePage("auth")} // Switch to login page
+            onSignupSuccess={handleSignupSuccess}
+            onSwitchToLogin={() => setActivePage("auth")}
           />
         );
       default:
-        return <HomePage />;
+        return <HomePage onRecipeSelect={setSelectedRecipe} />;
     }
   };
+  
 
   return (
     <div>
