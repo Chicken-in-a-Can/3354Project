@@ -291,3 +291,21 @@ def user_recipes(request, user_id):
 
     except models.User.DoesNotExist:
         return JsonResponse({"error": "User not found."}, status=404)
+
+@login_required
+def get_ingredients(request):
+    ingredients = Ingredient.objects.filter(user=request.user)
+    data = [{"name": ing.name, "quantity": ing.quantity} for ing in ingredients]
+    return JsonResponse(data, safe=False)
+
+@csrf_exempt
+@login_required
+def add_ingredient(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        ingredient = Ingredient.objects.create(
+            user=request.user,
+            name=data["name"],
+            quantity=data["quantity"],
+        )
+        return JsonResponse({"name": ingredient.name, "quantity": ingredient.quantity})
