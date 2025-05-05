@@ -4,7 +4,7 @@ import "../App.css";
 const RecipePage = () => {
   const [recipes, setRecipes] = useState([]);
   const [error, setError] = useState(null);
-  const [newRecipe, setNewRecipe] = useState({ name: "", category: "", ingredients: [] });
+  const [newRecipe, setNewRecipe] = useState({ name: "", category: "", ingredients: [], instructions: "" });
   const [ingredientInput, setIngredientInput] = useState("");
   const [addError, setAddError] = useState(null);
 
@@ -40,13 +40,8 @@ const RecipePage = () => {
 
     fetch("http://localhost:8000/calls/add_recipe/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...newRecipe,
-        user_id: userId
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...newRecipe, user_id: userId }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -56,7 +51,7 @@ const RecipePage = () => {
       })
       .then((data) => {
         setRecipes((prevRecipes) => [...prevRecipes, data]);
-        setNewRecipe({ name: "", category: "", ingredients: [] });
+        setNewRecipe({ name: "", category: "", ingredients: [], instructions: "" });
         setIngredientInput("");
         setAddError(null);
       })
@@ -109,6 +104,7 @@ const RecipePage = () => {
             <option value="Vegan">Vegan</option>
             <option value="GlutenFree">GlutenFree</option>
           </select>
+
           <div style={{ marginTop: "1rem" }}>
             <input
               type="text"
@@ -121,6 +117,7 @@ const RecipePage = () => {
               Add Ingredient
             </button>
           </div>
+
           <ul style={{ marginTop: "1rem" }}>
             {newRecipe.ingredients.map((ingredient, index) => (
               <li key={index} style={{ marginBottom: "0.5rem" }}>
@@ -143,6 +140,14 @@ const RecipePage = () => {
               </li>
             ))}
           </ul>
+
+          <textarea
+            placeholder="Enter instructions here..."
+            value={newRecipe.instructions}
+            onChange={(e) => setNewRecipe({ ...newRecipe, instructions: e.target.value })}
+            style={{ width: "100%", marginTop: "1rem", padding: "0.5rem", minHeight: "100px" }}
+          ></textarea>
+
           <button type="submit" style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
             Add Recipe
           </button>

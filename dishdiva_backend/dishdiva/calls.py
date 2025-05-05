@@ -221,6 +221,7 @@ def add_recipe(request):
             name = data.get("name")
             category_name = data.get("category")
             ingredient_names = data.get("ingredients", [])
+            instructions = data.get("instructions", "")
             user_id = data.get("user_id")  # <--- FIXED
 
             if not name or not category_name or not ingredient_names or not user_id:
@@ -241,7 +242,6 @@ def add_recipe(request):
             if not category_code:
                 return JsonResponse({"error": "Invalid category."}, status=400)
 
-            instructions = data.get("instructions", "")
             recipe = Recipe.objects.create(name=name, category=category_code, instructions=instructions)
 
 
@@ -264,6 +264,7 @@ def add_recipe(request):
                 "name": recipe.name,
                 "category": category_name,
                 "ingredients": [ing.ingredient.name for ing in recipe.ingredients.all()],
+                "instructions": recipe.instructions,
             }, status=201)
 
         except Exception as e:
@@ -284,6 +285,7 @@ def user_recipes(request, user_id):
                 "name": recipe.name,
                 "category": recipe.category,
                 "ingredients": [ingredient.ingredient.name for ingredient in recipe.ingredients.all()],
+                "instructions": recipe.instructions,
             }
             for recipe in recipes
         ]
